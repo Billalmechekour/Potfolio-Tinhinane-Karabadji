@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://potfolio-tinhinane-karabadji.vercel.app/sitemap.xml
+Sitemap: https://portfolio-tinhinane-karabadji.vercel.app/sitemap.xml
