@@ -600,8 +600,14 @@ export default function App() {
   }, [lang, isRtl]);
 
   useEffect(() => {
-    const nodes = document.querySelectorAll(".reveal");
+    const nodes = Array.from(document.querySelectorAll(".reveal"));
     const revealNode = (node) => node.classList.add("in-view");
+
+    if (!("IntersectionObserver" in window)) {
+      nodes.forEach(revealNode);
+      return undefined;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -619,7 +625,7 @@ export default function App() {
       observer.observe(node);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [lang]);
 
   const navIds = ["profile", "experiences", "skills", "education", "contact"];
 
