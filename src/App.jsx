@@ -321,6 +321,31 @@ const getPortfolioStats = (lang) => ({
 
 const VISITOR_COUNTER_ENDPOINT = "https://api.countapi.xyz/hit/tinhinane-karabadji/portfolio-visitors";
 const LOCAL_VISITOR_COUNTER_KEY = "tk-portfolio-visitors-local";
+const VISITOR_COUNTER_CACHE_KEY = "tk-portfolio-visitors-cache";
+
+const readStoredVisitorCount = () => {
+  try {
+    const cached = Number(localStorage.getItem(VISITOR_COUNTER_CACHE_KEY));
+    if (Number.isFinite(cached) && cached > 0) return cached;
+
+    const fallback = Number(localStorage.getItem(LOCAL_VISITOR_COUNTER_KEY));
+    if (Number.isFinite(fallback) && fallback > 0) return fallback;
+  } catch (_error) {
+    return 1;
+  }
+
+  return 1;
+};
+
+const storeVisitorCount = (count) => {
+  try {
+    if (Number.isFinite(count) && count > 0) {
+      localStorage.setItem(VISITOR_COUNTER_CACHE_KEY, String(count));
+    }
+  } catch (_error) {
+    // Storage can be unavailable in private browsing; the UI can still show the live value.
+  }
+};
 
 const incrementLocalVisitorCounter = () => {
   try {
@@ -328,6 +353,7 @@ const incrementLocalVisitorCounter = () => {
     const current = Number.isFinite(stored) && stored > 0 ? stored : 0;
     const next = current + 1;
     localStorage.setItem(LOCAL_VISITOR_COUNTER_KEY, String(next));
+    storeVisitorCount(next);
     return next;
   } catch (_error) {
     return 1;
@@ -341,6 +367,7 @@ const incrementVisitorCounter = async () => {
     const data = await response.json();
     const value = Number(data?.value);
     if (!Number.isFinite(value)) throw new Error("Invalid counter value");
+    storeVisitorCount(value);
     return value;
   } catch (_error) {
     return incrementLocalVisitorCounter();
@@ -348,7 +375,7 @@ const incrementVisitorCounter = async () => {
 };
 
 const formatVisitorCount = (count, lang) => {
-  if (!Number.isFinite(count)) return "...";
+  if (!Number.isFinite(count)) return "1";
   const locale = lang === "ar" ? "ar-EG" : lang === "en" ? "en-US" : "fr-FR";
   return new Intl.NumberFormat(locale).format(count);
 };
@@ -620,7 +647,7 @@ export default function App() {
   const [brandOpen, setBrandOpen] = useState(false);
   const [active, setActive] = useState("profile");
   const [form, setForm] = useState({ first: "", last: "", message: "" });
-  const [visitorCount, setVisitorCount] = useState(null);
+  const [visitorCount, setVisitorCount] = useState(() => readStoredVisitorCount());
   const t = content[lang];
   const isRtl = lang === "ar";
   const cvPath = profile.cvPaths[lang];
