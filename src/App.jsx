@@ -82,6 +82,7 @@ const content = {
       ["5", "expériences & formations"],
       ["4", "langues"],
       ["10+", "compétences clés"],
+      ["0", "visiteurs du portfolio"],
     ],
     experiencesTitle: "Expériences sélectionnées",
     experiencesSubtitle: "Parcours scientifique, laboratoire et formations",
@@ -131,6 +132,7 @@ const content = {
       ["5", "experiences & trainings"],
       ["4", "languages"],
       ["10+", "key skills"],
+      ["0", "portfolio visitors"],
     ],
     experiencesTitle: "Selected experiences",
     experiencesSubtitle: "Scientific path, laboratory work and training",
@@ -180,6 +182,7 @@ const content = {
       ["5", "خبرات وتكوينات"],
       ["4", "لغات"],
       ["10+", "مهارات أساسية"],
+      ["0", "زوار البورتفوليو"],
     ],
     experiencesTitle: "خبرات مختارة",
     experiencesSubtitle: "مسار علمي، عمل مخبري وتكوينات",
@@ -315,6 +318,40 @@ const getPortfolioStats = (lang) => ({
   languages: String(languages[lang].length),
   skills: "10+",
 });
+
+const VISITOR_COUNTER_ENDPOINT = "https://api.countapi.xyz/hit/tinhinane-karabadji/portfolio-visitors";
+const LOCAL_VISITOR_COUNTER_KEY = "tk-portfolio-visitors-local";
+
+const incrementLocalVisitorCounter = () => {
+  try {
+    const stored = Number(localStorage.getItem(LOCAL_VISITOR_COUNTER_KEY));
+    const current = Number.isFinite(stored) && stored > 0 ? stored : 0;
+    const next = current + 1;
+    localStorage.setItem(LOCAL_VISITOR_COUNTER_KEY, String(next));
+    return next;
+  } catch (_error) {
+    return 1;
+  }
+};
+
+const incrementVisitorCounter = async () => {
+  try {
+    const response = await fetch(VISITOR_COUNTER_ENDPOINT, { method: "GET", cache: "no-store" });
+    if (!response.ok) throw new Error("Counter request failed");
+    const data = await response.json();
+    const value = Number(data?.value);
+    if (!Number.isFinite(value)) throw new Error("Invalid counter value");
+    return value;
+  } catch (_error) {
+    return incrementLocalVisitorCounter();
+  }
+};
+
+const formatVisitorCount = (count, lang) => {
+  if (!Number.isFinite(count)) return "...";
+  const locale = lang === "ar" ? "ar-EG" : lang === "en" ? "en-US" : "fr-FR";
+  return new Intl.NumberFormat(locale).format(count);
+};
 
 const formatContact = (item) => `${item.label}: ${item.value}\n${item.href}`;
 
@@ -583,6 +620,7 @@ export default function App() {
   const [brandOpen, setBrandOpen] = useState(false);
   const [active, setActive] = useState("profile");
   const [form, setForm] = useState({ first: "", last: "", message: "" });
+  const [visitorCount, setVisitorCount] = useState(null);
   const t = content[lang];
   const isRtl = lang === "ar";
   const cvPath = profile.cvPaths[lang];
@@ -598,6 +636,20 @@ export default function App() {
     document.documentElement.dir = isRtl ? "rtl" : "ltr";
     localStorage.setItem("tk-lang", lang);
   }, [lang, isRtl]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadVisitors = async () => {
+      const nextCount = await incrementVisitorCounter();
+      if (!cancelled) setVisitorCount(nextCount);
+    };
+
+    loadVisitors();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const nodes = Array.from(document.querySelectorAll(".reveal"));
@@ -652,8 +704,9 @@ export default function App() {
       [stats.experiencesAndTrainings, t.metrics[1][1]],
       [stats.languages, t.metrics[2][1]],
       [stats.skills, t.metrics[3][1]],
+      [formatVisitorCount(visitorCount, lang), t.metrics[4][1]],
     ];
-  }, [lang, t.metrics]);
+  }, [lang, t.metrics, visitorCount]);
 
   const showUnavailableCv = () => {
     window.alert(t.cvUnavailable);
