@@ -110,6 +110,7 @@ const content = {
       sending: "Envoi en cours...",
       toastSuccess: "Votre message a été envoyé avec succès !",
       toastError: "Une erreur est survenue. Veuillez réessayer.",
+      toastRequired: "Veuillez remplir tous les champs.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -163,6 +164,7 @@ const content = {
       sending: "Sending...",
       toastSuccess: "Your message has been sent successfully!",
       toastError: "An error occurred. Please try again.",
+      toastRequired: "Please fill in all fields.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -216,6 +218,7 @@ const content = {
       sending: "جاري الإرسال...",
       toastSuccess: "تم إرسال رسالتك بنجاح!",
       toastError: "حدث خطأ. يرجى المحاولة مرة أخرى.",
+      toastRequired: "يرجى ملء جميع الحقول.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -716,18 +719,22 @@ export default function App() {
   const submitContact = (event) => {
     event.preventDefault();
     if (sending) return;
-    if (!form.last.trim() || !form.first.trim() || !form.message.trim()) return;
+    if (!form.last.trim() || !form.first.trim() || !form.message.trim()) {
+      setToast({ type: "error", text: t.form.toastRequired });
+      window.setTimeout(() => setToast(null), 3000);
+      return;
+    }
     setSending(true);
-    fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Nom: form.last.trim(),
-        Prenom: form.first.trim(),
-        Message: form.message.trim(),
-      }),
-    }).catch(() => {});
+    const payload = JSON.stringify({
+      Nom: form.last.trim(),
+      Prenom: form.first.trim(),
+      Message: form.message.trim(),
+    });
+    try {
+      navigator.sendBeacon
+        ? navigator.sendBeacon("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", new Blob([payload], { type: "application/json" }))
+        : fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: payload }).catch(() => {});
+    } catch (_e) { /* silent */ }
     setForm({ first: "", last: "", message: "" });
     setSending(false);
     setToast({ type: "success", text: t.form.toastSuccess });
