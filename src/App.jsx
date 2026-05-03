@@ -319,15 +319,12 @@ const getPortfolioStats = (lang) => ({
   skills: "10+",
 });
 
-const VISITOR_COUNTER_ENDPOINT = "https://api.countapi.xyz/hit/tinhinane-karabadji/portfolio-visitors";
-
-const buildVisitorEndpoint = () => `${VISITOR_COUNTER_ENDPOINT}?t=${Date.now()}`;
-
 const incrementVisitorCounter = async () => {
-  const response = await fetch(buildVisitorEndpoint(), {
+  const url = `/api/visitors?t=${Date.now()}`;
+  const response = await fetch(url, {
     method: "GET",
     cache: "no-store",
-    headers: { "Cache-Control": "no-store" },
+    headers: { "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache" },
   });
   if (!response.ok) throw new Error("Counter request failed");
   const data = await response.json();
