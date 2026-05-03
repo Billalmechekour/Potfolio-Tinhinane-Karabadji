@@ -107,6 +107,9 @@ const content = {
       firstPlaceholder: "Votre prénom",
       messagePlaceholder: "Écris ton message, ton besoin ou ton opportunité.",
       submit: "Envoyer mon message",
+      sending: "Envoi en cours...",
+      toastSuccess: "Votre message a été envoyé avec succès !",
+      toastError: "Une erreur est survenue. Veuillez réessayer.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -157,6 +160,9 @@ const content = {
       firstPlaceholder: "Your first name",
       messagePlaceholder: "Write your message, need, or opportunity.",
       submit: "Send my message",
+      sending: "Sending...",
+      toastSuccess: "Your message has been sent successfully!",
+      toastError: "An error occurred. Please try again.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -207,6 +213,9 @@ const content = {
       firstPlaceholder: "اسمك",
       messagePlaceholder: "اكتب رسالتك أو فرصتك.",
       submit: "إرسال رسالتي",
+      sending: "جاري الإرسال...",
+      toastSuccess: "تم إرسال رسالتك بنجاح!",
+      toastError: "حدث خطأ. يرجى المحاولة مرة أخرى.",
     },
     chatbot: {
       title: "TK Chatbot",
@@ -630,6 +639,8 @@ export default function App() {
   const [active, setActive] = useState("profile");
   const [form, setForm] = useState({ first: "", last: "", message: "" });
   const [visitorCount, setVisitorCount] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [sending, setSending] = useState(false);
   const t = content[lang];
   const isRtl = lang === "ar";
   const cvPath = profile.cvPaths[lang];
@@ -702,11 +713,31 @@ export default function App() {
     node.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
   };
 
-  const submitContact = (event) => {
+  const submitContact = async (event) => {
     event.preventDefault();
-    const subject = encodeURIComponent(`Message portfolio - ${form.first} ${form.last}`.trim());
-    const body = encodeURIComponent(`Nom: ${form.last || "-"}\nPrénom: ${form.first || "-"}\n\nMessage:\n${form.message || "-"}`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+    if (sending) return;
+    setSending(true);
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/karabadjitinhinane@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: `${form.first} ${form.last}`.trim(),
+          email: "portfolio-contact@tinhinane.com",
+          message: form.message,
+          _subject: `Message portfolio - ${form.first} ${form.last}`.trim(),
+          _template: "table",
+        }),
+      });
+      if (!response.ok) throw new Error("Send failed");
+      setForm({ first: "", last: "", message: "" });
+      setToast({ type: "success", text: t.form.toastSuccess });
+    } catch (_error) {
+      setToast({ type: "error", text: t.form.toastError });
+    } finally {
+      setSending(false);
+      window.setTimeout(() => setToast(null), 4000);
+    }
   };
 
   const skillList = useMemo(() => skills[lang], [lang]);
@@ -895,11 +926,18 @@ export default function App() {
                 <span>{t.form.message}</span>
                 <textarea rows={6} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder={t.form.messagePlaceholder} />
               </label>
-              <button className="submit" type="submit">{t.form.submit}<span>→</span></button>
+              <button className="submit" type="submit" disabled={sending}>{sending ? t.form.sending : t.form.submit}<span>→</span></button>
             </form>
           </div>
         </section>
       </main>
+
+      {toast && (
+        <div className={`toast toast-${toast.type}`}>
+          <span>{toast.type === "success" ? "✓" : "✕"}</span>
+          <p>{toast.text}</p>
+        </div>
+      )}
 
       <Chatbot lang={lang} />
       <footer>{new Date().getFullYear()} • {profile.fullName}</footer>
