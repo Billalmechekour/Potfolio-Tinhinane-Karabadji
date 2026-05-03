@@ -22,8 +22,9 @@ const profile = {
   email: "karabadjitinhinane@gmail.com",
   address: "Résidence du Thil, Salouel, Amiens, France",
   cvPaths: {
-    fr: "/cv-francais.pdf",
-    en: "/cv-anglais.pdf",
+    fr: "/cv francais.pdf",
+    en: "/cv anglais.pdf",
+    ar: "/cv arabe.pdf",
   },
   avatar: "/tinhinane-avatar.svg",
   portraitImage: "/image de tinhinane.png",
@@ -76,7 +77,7 @@ const content = {
     contact: "Me contacter",
     viewCv: "Consulter mon CV",
     downloadCv: "Télécharger mon CV",
-    cvUnavailable: "La version arabe du CV n'est pas disponible en ce moment.",
+
     metrics: [
       ["5", "années de parcours universitaire"],
       ["5", "expériences & formations"],
@@ -126,7 +127,7 @@ const content = {
     contact: "Contact me",
     viewCv: "View CV",
     downloadCv: "Download CV",
-    cvUnavailable: "The Arabic CV version is not available at the moment.",
+
     metrics: [
       ["5", "years of academic path"],
       ["5", "experiences & trainings"],
@@ -176,7 +177,7 @@ const content = {
     contact: "تواصل معها",
     viewCv: "معاينة السيرة الذاتية",
     downloadCv: "تحميل السيرة الذاتية",
-    cvUnavailable: "نسخة السيرة الذاتية بالعربية غير متوفرة حالياً.",
+
     metrics: [
       ["5", "سنوات مسار جامعي"],
       ["5", "خبرات وتكوينات"],
@@ -381,9 +382,9 @@ const getSkillGroupAnswer = (question, lang) => {
 
 const getCvAnswer = (lang) => {
   const intro = {
-    fr: "Voici les deux versions disponibles du CV de Tinhinane :",
-    en: "Here are the two available CV versions for Tinhinane:",
-    ar: "هذه نسختا السيرة الذاتية المتاحتان لتينهانين:",
+    fr: "Voici les trois versions disponibles du CV de Tinhinane :",
+    en: "Here are the three available CV versions for Tinhinane:",
+    ar: "هذه النسخ الثلاث المتاحة للسيرة الذاتية لتينهانين:",
   }[lang];
 
   return {
@@ -391,22 +392,19 @@ const getCvAnswer = (lang) => {
     actions: [
       { label: "CV français", href: profile.cvPaths.fr },
       { label: "CV anglais", href: profile.cvPaths.en },
+      { label: "CV arabe", href: profile.cvPaths.ar },
     ],
   };
 };
 
 const getDirectCvAnswer = (lang, version) => {
-  if (version === "ar") {
-    return content[lang].cvUnavailable;
-  }
-
-  const isFrench = version === "fr";
-  const label = isFrench ? "CV français" : "CV anglais";
+  const labels = { fr: "CV français", en: "CV anglais", ar: "CV arabe" };
+  const label = labels[version];
   const text = {
-    fr: isFrench ? "Voici le CV français de Tinhinane :" : "Voici le CV anglais de Tinhinane :",
-    en: isFrench ? "Here is Tinhinane's French CV:" : "Here is Tinhinane's English CV:",
-    ar: isFrench ? "هذه السيرة الذاتية الفرنسية لتينهانين:" : "هذه السيرة الذاتية الإنجليزية لتينهانين:",
-  }[lang];
+    fr: { fr: "Voici le CV français de Tinhinane :", en: "Voici le CV anglais de Tinhinane :", ar: "Voici le CV arabe de Tinhinane :" },
+    en: { fr: "Here is Tinhinane's French CV:", en: "Here is Tinhinane's English CV:", ar: "Here is Tinhinane's Arabic CV:" },
+    ar: { fr: "هذه السيرة الذاتية الفرنسية لتينهانين:", en: "هذه السيرة الذاتية الإنجليزية لتينهانين:", ar: "هذه السيرة الذاتية العربية لتينهانين:" },
+  }[lang][version];
 
   return {
     text,
@@ -718,9 +716,6 @@ export default function App() {
     ];
   }, [lang, t.metrics, visitorCount]);
 
-  const showUnavailableCv = () => {
-    window.alert(t.cvUnavailable);
-  };
 
   return (
     <div className="site-shell" dir={isRtl ? "rtl" : "ltr"}>
@@ -758,16 +753,8 @@ export default function App() {
             <p className="intro">{t.intro}</p>
             <div className="hero-actions">
               <a className="btn primary hero-contact" href="#contact" onClick={(event) => { event.preventDefault(); scrollTo("contact"); }}>{t.contact}</a>
-              {hasCv ? (
-                <a className="btn ghost" href={cvPath} target="_blank" rel="noopener noreferrer">{t.viewCv}</a>
-              ) : (
-                <button className="btn ghost" type="button" onClick={showUnavailableCv}>{t.viewCv}</button>
-              )}
-              {hasCv ? (
-                <a className="btn warm" href={cvPath} download>{t.downloadCv}</a>
-              ) : (
-                <button className="btn warm" type="button" onClick={showUnavailableCv}>{t.downloadCv}</button>
-              )}
+              <a className="btn ghost" href={cvPath} target="_blank" rel="noopener noreferrer">{t.viewCv}</a>
+              <a className="btn warm" href={cvPath} download>{t.downloadCv}</a>
             </div>
           </div>
           <aside className="portrait" aria-label={profile.fullName}>
