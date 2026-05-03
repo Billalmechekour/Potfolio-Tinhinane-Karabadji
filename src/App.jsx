@@ -713,29 +713,25 @@ export default function App() {
     node.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
   };
 
-  const submitContact = async (event) => {
+  const submitContact = (event) => {
     event.preventDefault();
     if (sending) return;
+    if (!form.last.trim() || !form.first.trim() || !form.message.trim()) return;
     setSending(true);
-    try {
-      await fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Nom: form.last || "-",
-          Prenom: form.first || "-",
-          Message: form.message || "-",
-        }),
-      });
-      setForm({ first: "", last: "", message: "" });
-      setToast({ type: "success", text: t.form.toastSuccess });
-    } catch (_error) {
-      setToast({ type: "error", text: t.form.toastError });
-    } finally {
-      setSending(false);
-      window.setTimeout(() => setToast(null), 4000);
-    }
+    fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Nom: form.last.trim(),
+        Prenom: form.first.trim(),
+        Message: form.message.trim(),
+      }),
+    }).catch(() => {});
+    setForm({ first: "", last: "", message: "" });
+    setSending(false);
+    setToast({ type: "success", text: t.form.toastSuccess });
+    window.setTimeout(() => setToast(null), 4000);
   };
 
   const skillList = useMemo(() => skills[lang], [lang]);
@@ -914,15 +910,15 @@ export default function App() {
             <form className="contact-form" onSubmit={submitContact}>
               <label>
                 <span>{t.form.last}</span>
-                <input value={form.last} onChange={(event) => setForm({ ...form, last: event.target.value })} placeholder={t.form.lastPlaceholder} />
+                <input value={form.last} onChange={(event) => setForm({ ...form, last: event.target.value })} placeholder={t.form.lastPlaceholder} required />
               </label>
               <label>
                 <span>{t.form.first}</span>
-                <input value={form.first} onChange={(event) => setForm({ ...form, first: event.target.value })} placeholder={t.form.firstPlaceholder} />
+                <input value={form.first} onChange={(event) => setForm({ ...form, first: event.target.value })} placeholder={t.form.firstPlaceholder} required />
               </label>
               <label className="full">
                 <span>{t.form.message}</span>
-                <textarea rows={6} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder={t.form.messagePlaceholder} />
+                <textarea rows={6} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder={t.form.messagePlaceholder} required />
               </label>
               <button className="submit" type="submit" disabled={sending}>{sending ? t.form.sending : t.form.submit}<span>→</span></button>
             </form>
