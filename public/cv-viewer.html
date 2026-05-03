@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon-tk.svg" />
+  <title>Tinhinane Karabadji | CV</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; }
+    embed, iframe { width: 100%; height: 100%; border: none; }
+  </style>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get("lang") || "fr";
+    const titles = {
+      fr: "Tinhinane Karabadji | CV Français",
+      en: "Tinhinane Karabadji | CV Anglais",
+      ar: "Tinhinane Karabadji | CV Arabe",
+    };
+    const files = {
+      fr: "/cv francais.pdf",
+      en: "/cv anglais.pdf",
+      ar: "/cv arabe.pdf",
+    };
+    document.title = titles[lang] || titles.fr;
+    window.addEventListener("DOMContentLoaded", function () {
+      var embed = document.getElementById("pdf-viewer");
+      embed.src = files[lang] || files.fr;
+    });
+  </script>
+</head>
+<body>
+  <embed id="pdf-viewer" type="application/pdf" />
+</body>
+</html>

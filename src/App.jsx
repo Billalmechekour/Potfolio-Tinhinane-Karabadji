@@ -22,6 +22,11 @@ const profile = {
   email: "karabadjitinhinane@gmail.com",
   address: "Résidence du Thil, Salouel, Amiens, France",
   cvPaths: {
+    fr: "/cv-viewer.html?lang=fr",
+    en: "/cv-viewer.html?lang=en",
+    ar: "/cv-viewer.html?lang=ar",
+  },
+  cvDownloadPaths: {
     fr: "/cv francais.pdf",
     en: "/cv anglais.pdf",
     ar: "/cv arabe.pdf",
@@ -628,7 +633,7 @@ export default function App() {
   const t = content[lang];
   const isRtl = lang === "ar";
   const cvPath = profile.cvPaths[lang];
-  const hasCv = Boolean(cvPath);
+  const cvDownloadPath = profile.cvDownloadPaths[lang];
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -754,7 +759,7 @@ export default function App() {
             <div className="hero-actions">
               <a className="btn primary hero-contact" href="#contact" onClick={(event) => { event.preventDefault(); scrollTo("contact"); }}>{t.contact}</a>
               <a className="btn ghost" href={cvPath} target="_blank" rel="noopener noreferrer">{t.viewCv}</a>
-              <a className="btn warm" href={cvPath} download>{t.downloadCv}</a>
+              <a className="btn warm" href={cvDownloadPath} download>{t.downloadCv}</a>
             </div>
           </div>
           <aside className="portrait" aria-label={profile.fullName}>
