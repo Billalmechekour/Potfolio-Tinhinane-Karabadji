@@ -722,14 +722,17 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          name: `${form.first} ${form.last}`.trim(),
-          email: "portfolio-contact@tinhinane.com",
-          message: form.message,
+          Nom: form.last || "-",
+          "Prénom": form.first || "-",
+          Message: form.message || "-",
           _subject: `Message portfolio - ${form.first} ${form.last}`.trim(),
           _template: "table",
+          _captcha: "false",
         }),
       });
       if (!response.ok) throw new Error("Send failed");
+      const result = await response.json();
+      if (result.success === "false" || result.success === false) throw new Error(result.message || "Send failed");
       setForm({ first: "", last: "", message: "" });
       setToast({ type: "success", text: t.form.toastSuccess });
     } catch (_error) {
