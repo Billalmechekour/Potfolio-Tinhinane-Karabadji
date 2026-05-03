@@ -718,21 +718,16 @@ export default function App() {
     if (sending) return;
     setSending(true);
     try {
-      const response = await fetch("https://formsubmit.co/ajax/karabadjitinhinane@gmail.com", {
+      await fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           Nom: form.last || "-",
-          "Prénom": form.first || "-",
+          Prenom: form.first || "-",
           Message: form.message || "-",
-          _subject: `Message portfolio - ${form.first} ${form.last}`.trim(),
-          _template: "table",
-          _captcha: "false",
         }),
       });
-      if (!response.ok) throw new Error("Send failed");
-      const result = await response.json();
-      if (result.success === "false" || result.success === false) throw new Error(result.message || "Send failed");
       setForm({ first: "", last: "", message: "" });
       setToast({ type: "success", text: t.form.toastSuccess });
     } catch (_error) {
