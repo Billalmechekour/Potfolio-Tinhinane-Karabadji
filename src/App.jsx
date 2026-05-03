@@ -298,6 +298,26 @@ const languages = {
   ar: ["القبائلية: اللغة الأم", "العربية: متقدم", "الفرنسية: متوسط متقدم", "الإنجليزية: متوسط"],
 };
 
+const softwareTools = [
+  { name: "HYSYS", icon: "/icons de logiciels/icone HYSYS.png" },
+  { name: "MATLAB", icon: "/icons de logiciels/icone matlab.png" },
+  { name: "ASPEN", icon: "/icons de logiciels/icone aspen.png" },
+  { name: "Photoshop", icon: "/icons de logiciels/icone photoshop.png" },
+  { name: "Illustrator", icon: "/icons de logiciels/icons8-adobe-illustrator-24 copie.png" },
+  { name: "CapCut", icon: "/icons de logiciels/icone capcut.png" },
+  { name: "Canva", icon: "/icons de logiciels/canva_icon_220714 (1).png" },
+  { name: "Word", icon: "/icons de logiciels/icons8-ms-word-48 copie.png" },
+  { name: "Excel", icon: "/icons de logiciels/icons8-ms-excel-48 copie.png" },
+  { name: "PowerPoint", icon: "/icons de logiciels/icons8-microsoft-powerpoint-2025-48 copie.png" },
+  { name: "LaTeX", icon: "/icons de logiciels/icons8-latex-48 copie.png" },
+];
+
+const softwareTitle = {
+  fr: "Logiciels maîtrisés",
+  en: "Software mastered",
+  ar: "البرامج المتقنة",
+};
+
 const normalize = (value) =>
   value
     .toLowerCase()
@@ -803,6 +823,22 @@ export default function App() {
                   {items.map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="software-marquee reveal">
+          <h3 className="software-marquee-title">{softwareTitle[lang]}</h3>
+          <div className="marquee-track">
+            {[0, 1].map((setIndex) => (
+              <div className="marquee-set" key={setIndex} aria-hidden={setIndex === 1}>
+                {softwareTools.map((tool) => (
+                  <div className="marquee-item" key={`${setIndex}-${tool.name}`}>
+                    <img src={tool.icon} alt={tool.name} loading="lazy" />
+                    <span>{tool.name}</span>
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         </section>

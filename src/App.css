@@ -671,6 +671,118 @@ main {
   width: fit-content;
 }
 
+/* ── Software marquee / ticker ── */
+.software-marquee {
+  position: relative;
+  padding: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgba(31, 44, 65, 0.07);
+  overflow: hidden;
+  direction: ltr;
+}
+
+.software-marquee-title {
+  margin: 0 0 16px;
+  padding: 0 24px;
+  color: var(--text);
+  font-family: "Space Grotesk", "Sora", sans-serif;
+  font-size: clamp(0.92rem, 1.3vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+[dir="rtl"] .software-marquee-title {
+  text-align: right;
+  direction: rtl;
+}
+
+.software-marquee::before,
+.software-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.software-marquee::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--surface), transparent);
+}
+
+.software-marquee::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--surface), transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 30s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marquee-set {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 7px;
+  flex-shrink: 0;
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-light);
+  white-space: nowrap;
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  cursor: default;
+}
+
+.marquee-item:hover {
+  transform: translateY(-3px) scale(1.04);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.14);
+}
+
+.marquee-item img {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.marquee-item span {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .education-layout {
   display: grid;
   grid-template-columns: 1.05fr 0.7fr;
