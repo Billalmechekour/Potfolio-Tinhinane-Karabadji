@@ -320,62 +320,24 @@ const getPortfolioStats = (lang) => ({
 });
 
 const VISITOR_COUNTER_ENDPOINT = "https://api.countapi.xyz/hit/tinhinane-karabadji/portfolio-visitors";
-const LOCAL_VISITOR_COUNTER_KEY = "tk-portfolio-visitors-local";
-const VISITOR_COUNTER_CACHE_KEY = "tk-portfolio-visitors-cache";
 
-const readStoredVisitorCount = () => {
-  try {
-    const cached = Number(localStorage.getItem(VISITOR_COUNTER_CACHE_KEY));
-    if (Number.isFinite(cached) && cached > 0) return cached;
-
-    const fallback = Number(localStorage.getItem(LOCAL_VISITOR_COUNTER_KEY));
-    if (Number.isFinite(fallback) && fallback > 0) return fallback;
-  } catch (_error) {
-    return 1;
-  }
-
-  return 1;
-};
-
-const storeVisitorCount = (count) => {
-  try {
-    if (Number.isFinite(count) && count > 0) {
-      localStorage.setItem(VISITOR_COUNTER_CACHE_KEY, String(count));
-    }
-  } catch (_error) {
-    // Storage can be unavailable in private browsing; the UI can still show the live value.
-  }
-};
-
-const incrementLocalVisitorCounter = () => {
-  try {
-    const stored = Number(localStorage.getItem(LOCAL_VISITOR_COUNTER_KEY));
-    const current = Number.isFinite(stored) && stored > 0 ? stored : 0;
-    const next = current + 1;
-    localStorage.setItem(LOCAL_VISITOR_COUNTER_KEY, String(next));
-    storeVisitorCount(next);
-    return next;
-  } catch (_error) {
-    return 1;
-  }
-};
+const buildVisitorEndpoint = () => `${VISITOR_COUNTER_ENDPOINT}?t=${Date.now()}`;
 
 const incrementVisitorCounter = async () => {
-  try {
-    const response = await fetch(VISITOR_COUNTER_ENDPOINT, { method: "GET", cache: "no-store" });
-    if (!response.ok) throw new Error("Counter request failed");
-    const data = await response.json();
-    const value = Number(data?.value);
-    if (!Number.isFinite(value)) throw new Error("Invalid counter value");
-    storeVisitorCount(value);
-    return value;
-  } catch (_error) {
-    return incrementLocalVisitorCounter();
-  }
+  const response = await fetch(buildVisitorEndpoint(), {
+    method: "GET",
+    cache: "no-store",
+    headers: { "Cache-Control": "no-store" },
+  });
+  if (!response.ok) throw new Error("Counter request failed");
+  const data = await response.json();
+  const value = Number(data?.value);
+  if (!Number.isFinite(value)) throw new Error("Invalid counter value");
+  return value;
 };
 
 const formatVisitorCount = (count, lang) => {
-  if (!Number.isFinite(count)) return "1";
+  if (!Number.isFinite(count)) return "...";
   const locale = lang === "ar" ? "ar-EG" : lang === "en" ? "en-US" : "fr-FR";
   return new Intl.NumberFormat(locale).format(count);
 };
@@ -647,7 +609,7 @@ export default function App() {
   const [brandOpen, setBrandOpen] = useState(false);
   const [active, setActive] = useState("profile");
   const [form, setForm] = useState({ first: "", last: "", message: "" });
-  const [visitorCount, setVisitorCount] = useState(() => readStoredVisitorCount());
+  const [visitorCount, setVisitorCount] = useState(null);
   const t = content[lang];
   const isRtl = lang === "ar";
   const cvPath = profile.cvPaths[lang];
@@ -668,8 +630,12 @@ export default function App() {
     let cancelled = false;
 
     const loadVisitors = async () => {
-      const nextCount = await incrementVisitorCounter();
-      if (!cancelled) setVisitorCount(nextCount);
+      try {
+        const nextCount = await incrementVisitorCounter();
+        if (!cancelled) setVisitorCount(nextCount);
+      } catch (_error) {
+        if (!cancelled) setVisitorCount(null);
+      }
     };
 
     loadVisitors();
