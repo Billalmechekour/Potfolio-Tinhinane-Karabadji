@@ -730,7 +730,7 @@ export default function App() {
       Prenom: form.first.trim(),
       Message: form.message.trim(),
     });
-    fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbzAR8hqZJnrRMd-vRxXFcDGMYoh2eHWdmOZ5vcbWDca3prIqDXN3faejfLI9r6QD1nW/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain" },
