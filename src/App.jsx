@@ -730,11 +730,13 @@ export default function App() {
       Prenom: form.first.trim(),
       Message: form.message.trim(),
     });
-    try {
-      navigator.sendBeacon
-        ? navigator.sendBeacon("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", new Blob([payload], { type: "application/json" }))
-        : fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: payload }).catch(() => {});
-    } catch (_e) { /* silent */ }
+    fetch("https://script.google.com/macros/s/AKfycbxIVs5kA7hachbF_7_y_AI91TkclOBzJn5fRIiv-FzRnceVaRqrNDcQVyPAOYa8F71k/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: payload,
+      redirect: "follow",
+    }).catch(() => {});
     setForm({ first: "", last: "", message: "" });
     setSending(false);
     setToast({ type: "success", text: t.form.toastSuccess });
